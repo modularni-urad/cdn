@@ -1,0 +1,25 @@
+{
+  "name": "modularni-urad-cdn",
+  "version": "1.0.0",
+  "description": "CDN",
+  "main": "server.js",
+  "scripts": {
+    "start": "node -r esm -r dotenv/config server.js",
+    "startdbg": "node -r esm -r dotenv/config --inspect-brk server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Vaclav Klecanda <vencax77@gmail.com> (http://vxk.cz)",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "dotenv": "^6.0.0",
+    "esm": "^3.2.25",
+    "express": "^4.16.2",
+    "sharp": "^0.25.3",
+    "underscore": "^1.9.1",
+    "urlencode": "^1.1.0"
+  },
+  "engines": {
+    "node": ">=12"
+  }
+}
