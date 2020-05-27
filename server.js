@@ -10,7 +10,11 @@ async function init (host, port) {
     const url = urlencode.decode(req.query.url)
     const JPG_OPTS = { quality: 85, progressive: true }
     const WIDTH = parseInt(req.query.w) || 800
-    const resizer = sharp().resize(WIDTH).jpeg(JPG_OPTS)
+    const resizer = sharp().resize(WIDTH).jpeg(JPG_OPTS).on('error', err => {
+      return err.toString().indexOf('unsupported image format') >= 0
+        ? next(`${url} není odkaz na obrázek! (${err.toString()})`)
+        : err.toString()
+    })
 
     axios({ method: 'get', url, responseType: 'stream' }).then(response => {
       response.data.pipe(resizer).pipe(res)
