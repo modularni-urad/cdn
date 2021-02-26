@@ -15,6 +15,21 @@ export async function init (mocks = null) {
   const JSONBodyParser = bodyParser.json()
   const auth = initAuth(app)
 
+  app.get('/', (req, res, next) => {
+    files.list(req.query, knex).then(info => {
+      res.json(info)
+      next()
+    }).catch(next)
+  })
+
+  app.put('/:id',
+    JSONBodyParser,
+    (req, res, next) => {
+      files.update(req.params.id, req.body, knex)
+        .then(updated => { res.json(updated[0]) })
+        .catch(next)
+    })
+
   app.get('/file/*', (req, res, next) => {
     files.getFile(req.params['0'], req.query, res, next, knex).then(f => {
       const modificator = files.getModificator(req.query, f.attrs)

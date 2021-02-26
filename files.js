@@ -8,15 +8,40 @@ import { TNAMES } from './consts'
 
 const DATA_FOLDER = path.resolve(process.env.DATA_FOLDER || './.data')
 
-async function upload (body, knex) {
+function list (query, knex) {
+  const perPage = Number(query.perPage) || 10
+  const currentPage = Number(query.currentPage) || null
+  const fields = query.fields ? query.fields.split(',') : null
+  const sort = query.sort ? query.sort.split(':') : null
+  const filter = query.filter ? JSON.parse(query.filter) : null
+  let qb = knex(TNAMES.FILES)
+  qb = filter ? qb.where(whereFilter(filter)) : qb
+  qb = fields ? qb.select(fields) : qb
+  qb = sort ? qb.orderBy(sort[0], sort[1]) : qb
+  return currentPage ? qb.paginate({ perPage, currentPage }) : qb
+}
+
+function update (id, body, knex) {
+  if (body.content) {
+    _saveFile(body, id)
+  }
+  const data = _.omit(body, 'content')
+  return knex(TNAMES.FILES).where({ id }).update(data).returning('*')
+}
+
+async function _saveFile(body, id) {
   if (!body.filename || body.filename.length > 128) {
     throw new Error('too long or undefined filename')
   }
-  const data = _.omit(body, 'content')
-  const newItems = await knex(TNAMES.FILES).insert(data).returning('*')
-  const fileName = path.join(DATA_FOLDER, `${newItems[0].id}/${body.filename}`)
+  const fileName = path.join(DATA_FOLDER, `${id}/${body.filename}`)
   await fs.promises.mkdir(path.dirname(fileName))
   await fs.promises.writeFile(fileName, Buffer.from(body.content, 'base64'))
+}
+
+async function upload (body, knex) {
+  const data = _.omit(body, 'content')
+  const newItems = await knex(TNAMES.FILES).insert(data).returning('*')
+  _saveFile(body, newItems[0].id)
   return newItems[0]
 }
 
@@ -58,4 +83,4 @@ async function isImage (url) {
   return ress.headers['content-type'].indexOf('image') >= 0
 }
 
-export default { upload, getFile, isImage, getModificator }
+export default { upload, getFile, isImage, getModificator, list, update }
