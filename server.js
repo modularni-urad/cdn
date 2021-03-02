@@ -14,7 +14,7 @@ export async function init (mocks = null) {
     : await initDB(migrationsDir)
   attachPaginate()
   const app = express()
-  const JSONBodyParser = bodyParser.json()
+  const JSONBodyParser = bodyParser.json({limit: '50mb'})
   const auth = initAuth(app)
 
   app.get('/', (req, res, next) => {
