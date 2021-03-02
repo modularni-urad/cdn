@@ -22,26 +22,30 @@ function list (query, knex) {
 }
 
 function update (id, body, knex) {
-  if (body.content) {
-    _saveFile(body, id)
+  if (body.file) {
+    _saveFile(body.file, id)
   }
-  const data = _.omit(body, 'content')
+  const data = _.omit(body, 'file')
+  data.ctype = body.file.type
+  data.filename = body.file.name
   return knex(TNAMES.FILES).where({ id }).update(data).returning('*')
 }
 
-async function _saveFile(body, id) {
-  if (!body.filename || body.filename.length > 128) {
+async function _saveFile(file, id) {
+  if (!file.name || file.name.length > 128) {
     throw new Error('too long or undefined filename')
   }
-  const fileName = path.join(DATA_FOLDER, `${id}/${body.filename}`)
+  const fileName = path.join(DATA_FOLDER, `${id}/${file.name}`)
   await fs.promises.mkdir(path.dirname(fileName))
-  await fs.promises.writeFile(fileName, Buffer.from(body.content, 'base64'))
+  await fs.promises.writeFile(fileName, Buffer.from(file.content, 'base64'))
 }
 
 async function upload (body, knex) {
-  const data = _.omit(body, 'content')
+  const data = _.omit(body, 'file')
+  data.ctype = body.file.type
+  data.filename = body.file.name
   const newItems = await knex(TNAMES.FILES).insert(data).returning('*')
-  _saveFile(body, newItems[0].id)
+  _saveFile(body.file, newItems[0].id)
   return newItems[0]
 }
 

@@ -7,11 +7,16 @@ module.exports = (g) => {
   //
   const r = chai.request(g.baseurl)
 
+  const content = 'pok1 __with__ device'
   const p1 = {
     tags: 'ts',
-    filename: 'pok.md',
-    ctype: 'text',
-    content: 'pok1 __with__ device'
+    nazev: 'pokus'
+  }
+  const file1 = {
+    name: 'pok.md',
+    type: 'text',
+    size: content.length,
+    content: Buffer.from(content, 'utf-8').toString('base64')
   }
 
   return describe('files', () => {
@@ -22,9 +27,10 @@ module.exports = (g) => {
 
     it('shall create a new item p1', async () => {
       // g.usergroups.push('waterman_admin')
-      const content = Buffer.from(p1.content, 'utf-8').toString('base64')
-      const res = await r.post('/').send(Object.assign({}, p1, { content }))
+      const res = await r.post('/').send(Object.assign({}, p1, { file : file1 }))
       p1.id = res.body.id
+      p1.filename = file1.name
+      p1.ctype = file1.type
       res.status.should.equal(201)
     })
 
@@ -42,7 +48,7 @@ module.exports = (g) => {
     it('shall get the pok1', async () => {
       const res = await r.get(`/file/${p1.id}/${p1.filename}`)
       res.status.should.equal(200)
-      res.text.should.equal(p1.content)
+      res.text.should.equal(content)
     })
   })
 }
