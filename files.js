@@ -4,6 +4,7 @@ import axios from 'axios'
 import fs from 'fs'
 import sharp from 'sharp'
 import _ from 'underscore'
+import { whereFilter } from 'knex-filter-loopback'
 import { TNAMES } from './consts'
 
 const DATA_FOLDER = path.resolve(process.env.DATA_FOLDER || './.data')
@@ -36,7 +37,11 @@ async function _saveFile(file, id) {
     throw new Error('too long or undefined filename')
   }
   const fileName = path.join(DATA_FOLDER, `${id}/${file.name}`)
-  await fs.promises.mkdir(path.dirname(fileName))
+  try {
+    await fs.promises.mkdir(path.dirname(fileName))
+  } catch (e) {
+
+  }  
   await fs.promises.writeFile(fileName, Buffer.from(file.content, 'base64'))
 }
 
