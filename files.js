@@ -23,12 +23,12 @@ function list (query, knex) {
 }
 
 function update (id, body, knex) {
+  const data = _.omit(body, 'file')
   if (body.file) {
     _saveFile(body.file, id)
-  }
-  const data = _.omit(body, 'file')
-  data.ctype = body.file.type
-  data.filename = body.file.name
+    data.ctype = body.file.type
+    data.filename = body.file.name
+  }  
   return knex(TNAMES.FILES).where({ id }).update(data).returning('*')
 }
 
