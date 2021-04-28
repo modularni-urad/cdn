@@ -1,4 +1,5 @@
 /* global describe it */
+import sharp from 'sharp'
 const chai = require('chai')
 chai.should()
 // import _ from 'underscore'
@@ -12,12 +13,7 @@ module.exports = (g) => {
     tags: 'ts',
     nazev: 'pokus'
   }
-  const file1 = {
-    name: 'pok.md',
-    type: 'text/plain',
-    size: content.length,
-    content: Buffer.from(content, 'utf-8').toString('base64')
-  }
+  const encContent = Buffer.from(content, 'utf-8').toString('base64')
 
   return describe('files', () => {
     // it('must not create a new item wihout approp group', async () => {
@@ -27,27 +23,33 @@ module.exports = (g) => {
 
     it('shall create a new item p1', async () => {
       // g.usergroups.push('waterman_admin')
-      const res = await r.post('/').send(Object.assign({}, p1, { file : file1 }))
-      p1.id = res.body.id
-      p1.filename = file1.name
-      p1.ctype = file1.type
+      const res = await r.post('/1/pok.md').send({ content: encContent})
       res.status.should.equal(201)
     })
 
-    it('shall update the item p1', () => {
-      const change = {
-        nazev: 'pok1changed'
-      }
-      return r.put(`/${p1.id}`).send(change)
-      .then(res => {
-        res.should.have.status(200)
-      })
-    })
-
     it('shall get the pok1', async () => {
-      const res = await r.get(`/file/${p1.id}/${p1.filename}`)
+      const res = await r.get(`/1/pok.md`)
       res.status.should.equal(200)
       res.text.should.equal(content)
+    })
+
+    it('shall create a new png', async () => {
+      const semiTransparentRedPng = await sharp({
+        create: {
+          width: 48,
+          height: 48,
+          channels: 4,
+          background: { r: 255, g: 0, b: 0, alpha: 0.5 }
+        }
+      }).png().toBuffer()
+      const content = semiTransparentRedPng.toString('base64')
+      const res = await r.post('/2/pok.png').send({ content })
+      res.status.should.equal(201)
+    })
+
+    it('shall get the png with width modif', async () => {
+      const res = await r.get(`/2/pok.png?w=200`)
+      res.status.should.equal(200)
     })
   })
 }

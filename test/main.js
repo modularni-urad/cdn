@@ -2,7 +2,6 @@
 import chai from 'chai'
 import path from 'path'
 import temp from 'temp'
-import dbinit from './utils/dbinit'
 const chaiHttp = require('chai-http')
 const fs = require('fs')
 chai.use(chaiHttp)
@@ -14,7 +13,6 @@ const g = {
   usergroups: []
 }
 const mocks = {
-  dbinit: dbinit,
   auth: {
     required: (req, res, next) => { return next() },
     requireMembership: (gid) => (req, res, next) => {
