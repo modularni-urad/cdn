@@ -38,8 +38,12 @@ function _getRemoteFile (query) {
 
 async function _getLocalFile (reqPath) {
   const fileName = path.join(DATA_FOLDER, reqPath)
-  const stat = await fs.promises.stat(fileName)
-  return { stream: fs.createReadStream(fileName), attrs: stat }
+  try {
+    const stat = await fs.promises.stat(fileName)
+    return { stream: fs.createReadStream(fileName), attrs: stat }
+  } catch (e) {
+    throw new Error(404)
+  }
 }
 
 async function getFile (reqPath, query, res) {
