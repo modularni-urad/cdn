@@ -2,6 +2,7 @@ import path from 'path'
 import urlencode from 'urlencode'
 import axios from 'axios'
 import fs from 'fs'
+import mkdirp from 'mkdirp-promise'
 import sharp from 'sharp'
 import _ from 'underscore'
 
@@ -9,11 +10,7 @@ const DATA_FOLDER = path.resolve(process.env.DATA_FOLDER || './.data')
 
 async function upload (id, name, body) {
   const fileName = path.join(DATA_FOLDER, `${id}/${name}`)
-  try {
-    await fs.promises.mkdir(path.dirname(fileName))
-  } catch (e) {
-
-  }
+  await mkdirp(path.dirname(fileName))
   return fs.promises.writeFile(fileName, Buffer.from(body.content, 'base64'))
 }
 
