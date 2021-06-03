@@ -1,20 +1,18 @@
 import express from 'express'
-import path from 'path'
 import bodyParser from 'body-parser'
 import initErrorHandlers from 'modularni-urad-utils/error_handlers'
-import initAuth from 'modularni-urad-utils/auth'
+import { required } from 'modularni-urad-utils/auth'
 import files from './files'
 
 export async function init (mocks = null) {
   const app = express()
   const JSONBodyParser = bodyParser.json({limit: '50mb'})
-  const auth = initAuth(app)
 
   app.get('/*', (req, res, next) => {
     files.getFile(req.params['0'], req.query, res, next).catch(next)
   })
 
-  app.post('/:id/:name', JSONBodyParser, (req, res, next) => {
+  app.post('/:id/:name', required, JSONBodyParser, (req, res, next) => {
     files.upload(req.params.id, req.params.name, req.body)
       .then(r => res.status(201).json(r)).catch(next)
   })
