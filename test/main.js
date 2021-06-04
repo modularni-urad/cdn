@@ -25,16 +25,20 @@ const mocks = {
 describe('app', () => {
   before(done => {
     temp.track()
-    temp.mkdir('testdata', (err, dirPath) => {
+    temp.mkdir('testdata', async (err, dirPath) => {
       if (err) return done(err)
       process.env.DATA_FOLDER = dirPath
-      const init = require('../server').init
-      init(mocks).then(app => {
+      try {
+        await fs.promises.mkdir(path.join(dirPath, process.env.DOMAIN))      
+        const init = require('../server').init
+        const app = await init(mocks)
         g.server = app.listen(port, '127.0.0.1', (err) => {
           if (err) return done(err)
           done()
         })
-      }).catch(done)
+      } catch (err) { 
+        done(err)
+      }
     })
   })
   after(done => {

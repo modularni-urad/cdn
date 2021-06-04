@@ -2,15 +2,18 @@ import path from 'path'
 import urlencode from 'urlencode'
 import axios from 'axios'
 import fs from 'fs'
-import mkdirp from 'mkdirp-promise'
 import sharp from 'sharp'
 import _ from 'underscore'
 
 const DATA_FOLDER = path.resolve(process.env.DATA_FOLDER || './.data')
 
-async function upload (id, name, body) {
-  const fileName = path.join(DATA_FOLDER, `${id}/${name}`)
-  await mkdirp(path.dirname(fileName))
+async function upload (id, name, body, domain) {
+  const fileName = path.join(DATA_FOLDER, domain, `${id}/${name}`)
+  try {
+    await fs.promises.mkdir(path.dirname(fileName))
+  } catch (e) {
+
+  }
   return fs.promises.writeFile(fileName, Buffer.from(body.content, 'base64'))
 }
 
@@ -26,31 +29,12 @@ function getModificator (query, fileAttrs) {
   })
 }
 
-function _getRemoteFile (query) {
-  const url = urlencode.decode(query.url)
-  return axios({ method: 'get', url, responseType: 'stream' }).then(response => {
-    return { stream: response.data, attrs: _.omit(response, 'data') }
-  })
-}
-
-async function _getLocalFile (reqPath) {
-  const fileName = path.join(DATA_FOLDER, reqPath)
-  try {
-    const stat = await fs.promises.stat(fileName)
-    return { stream: fs.createReadStream(fileName), attrs: stat }
-  } catch (e) {
-    throw new Error(404)
-  }
-}
-
-async function getFile (reqPath, query, res) {
-  const f = reqPath 
-    ? await _getLocalFile(reqPath) 
-    : await _getRemoteFile(query)
-  const modificator = getModificator(query, f.attrs)
-  const pipeline = modificator
-    ? f.stream.pipe(modificator).pipe(res)
-    : f.stream.pipe(res)
+async function getFile (url, query) {
+  const res = await axios({ method: 'get', url, responseType: 'stream' })
+  const info = { stream: res.data, headers: res.headers }
+  const modificator = getModificator(query, info.attrs)
+  info.stream = modificator ? info.stream.pipe(modificator) : info.stream
+  return info
 }
 
 async function isImage (url) {
@@ -59,4 +43,4 @@ async function isImage (url) {
   return ress.headers['content-type'].indexOf('image') >= 0
 }
 
-export default { upload, getFile, isImage, getModificator }
+export default { upload, getFile, isImage, getModificator, DATA_FOLDER }
