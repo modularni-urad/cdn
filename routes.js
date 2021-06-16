@@ -3,6 +3,11 @@ import _ from 'underscore'
 import urlencode from 'urlencode'
 import path from 'path'
 
+function _thisHost (req) {
+  const fwServer = req.headers['x-forwarded-server']
+  return fwServer ? `https://${fwServer}` : `${req.protocol}://${req.headers.host}`
+}
+
 export default function (ctx) {
   const { app, auth, JSONBodyParser, express } = ctx
 
@@ -15,13 +20,16 @@ export default function (ctx) {
   app.get('/resize/', (req, res, next) => {
     req.query.url = urlencode.decode(req.query.url)
     const url = req.query.url.match(/^https?:\/\//) 
-      ? req.query.url 
-      : `${req.protocol}://${req.headers.host}${req.query.url}`
+      ? req.query.url
+      : _thisHost(req) + req.query.url
     const query = _.omit(req.query, 'url')
     files.getFile(url, query).then(info => {
       res.set('content-type', info['content-type'])
       info.stream.pipe(res)
-    }).catch(next)
+    }).catch(err => {
+      console.error(err)
+      next(err)
+    })
   })
 
   app.get('/api/isimage', (req, res, next) => {
