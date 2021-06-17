@@ -21,7 +21,7 @@ export default function (ctx) {
     req.query.url = urlencode.decode(req.query.url)
     const url = req.query.url.match(/^https?:\/\//) 
       ? req.query.url
-      : _thisHost(req) + req.query.url
+      : _thisHost(req) + '/' + req.query.url
     const query = _.omit(req.query, 'url')
     files.getFile(url, query).then(info => {
       res.set('content-type', info['content-type'])
