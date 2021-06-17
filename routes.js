@@ -11,7 +11,7 @@ function _thisHost (req) {
 export default function (ctx) {
   const { app, auth, JSONBodyParser, express } = ctx
 
-  app.post('/api/:id/:name', auth.required, JSONBodyParser, (req, res, next) => {
+  app.post('/:id/:name', auth.required, JSONBodyParser, (req, res, next) => {
     const domain = process.env.DOMAIN || req.hostname
     files.upload(req.params.id, req.params.name, req.body, domain)
       .then(r => res.status(201).json(r)).catch(next)
@@ -32,7 +32,7 @@ export default function (ctx) {
     })
   })
 
-  app.get('/api/isimage', (req, res, next) => {
+  app.get('/isimage', (req, res, next) => {
     files.isImage(req.query.url).then(r => res.json(r)).catch(next)
   })
 
