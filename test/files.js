@@ -20,12 +20,12 @@ module.exports = (g) => {
 
     it('shall create a new item p1', async () => {
       // g.usergroups.push('waterman_admin')
-      const res = await r.post('/api/1/pok.md').send({ content: encContent})
+      const res = await r.post('/pok.md').send({ content: encContent})
       res.status.should.equal(201)
     })
 
     it('shall get the pok1', async () => {
-      const res = await r.get(`/1/pok.md`)
+      const res = await r.get(`/pok.md`)
       res.status.should.equal(200)
       const ctype = res.header['content-type']
       assert(ctype.indexOf('text/markdown') >= 0, 'approp content type missing')
@@ -42,12 +42,12 @@ module.exports = (g) => {
         }
       }).png().toBuffer()
       const content = semiTransparentRedPng.toString('base64')
-      const res = await r.post('/api/2/pok.png').send({ content })
+      const res = await r.post('/pok.png').send({ content })
       res.status.should.equal(201)
     })
 
     it('shall get the png with width modif', async () => {
-      const res = await r.get(`/resize/?url=/2/pok.png&w=200`)
+      const res = await r.get(`/resize/?url=/pok.png&w=200`)
       res.status.should.equal(200)
       const ctype = res.header['content-type']
       console.log(res.header);

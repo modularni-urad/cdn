@@ -7,8 +7,8 @@ import _ from 'underscore'
 
 const DATA_FOLDER = path.resolve(process.env.DATA_FOLDER || './.data')
 
-async function upload (id, name, body, domain) {
-  const fileName = path.join(DATA_FOLDER, domain, `${id}/${name}`)
+async function upload (name, body, domain) {
+  const fileName = path.join(DATA_FOLDER, domain, name)
   try {
     await fs.promises.mkdir(path.dirname(fileName))
   } catch (e) {

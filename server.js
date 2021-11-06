@@ -1,5 +1,4 @@
 import express from 'express'
-import bodyParser from 'body-parser'
 import initErrorHandlers from 'modularni-urad-utils/error_handlers'
 import { required } from 'modularni-urad-utils/auth'
 import initRoutes from './routes.js'
@@ -7,7 +6,7 @@ import initRoutes from './routes.js'
 export async function init (mocks = null) {
   const app = express()
   const auth = mocks ? mocks.auth : { required }
-  const JSONBodyParser = bodyParser.json({limit: '50mb'})
+  const JSONBodyParser = express.json({limit: '50mb'})
 
   initRoutes({ app, auth, JSONBodyParser, express })
 

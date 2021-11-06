@@ -11,9 +11,9 @@ function _thisHost (req) {
 export default function (ctx) {
   const { app, auth, JSONBodyParser, express } = ctx
 
-  app.post('/:id/:name', auth.required, JSONBodyParser, (req, res, next) => {
+  app.post('/:name', auth.required, JSONBodyParser, (req, res, next) => {
     const domain = process.env.DOMAIN || req.hostname
-    files.upload(req.params.id, req.params.name, req.body, domain)
+    files.upload(req.params.name, req.body, domain)
       .then(r => res.status(201).json(r)).catch(next)
   })
 
