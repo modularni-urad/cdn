@@ -23,9 +23,8 @@ function getModificator (query, fileAttrs) {
   return sharp().resize(parseInt(query.w)).jpeg(JPG_OPTS)
     .on('error', err => {
       const e = err.toString().indexOf('unsupported image format') >= 0
-        ? `${url} není odkaz na obrázek! (${err.toString()})`
+        ? `není odkaz na obrázek! (${err.toString()})`
         : err.toString()
-      res.end(err)
   })
 }
 
